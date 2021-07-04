@@ -17,22 +17,33 @@ class UserFixtures extends Fixture
     protected $slugger;
     protected $customerRepository;
 
-    public function __construct(UserPasswordHasherInterface $hasher, CustomerRepository $customerRepository, SluggerInterface $slugger)
-    {
+    public function __construct(
+        UserPasswordHasherInterface $hasher,
+        CustomerRepository $customerRepository,
+        SluggerInterface $slugger
+    ) {
         $this->hasher = $hasher;
         $this->slugger = $slugger;
         $this->customerRepository = $customerRepository;
     }
 
+    /**
+     * load
+     *
+     * @param  ObjectManager $manager
+     * @return void
+     */
     public function load(ObjectManager $manager)
     {
         $faker = Factory::create('fr_FR');
 
         $customers = $this->customerRepository->findAll();
 
-        for ($u = 0; $u < 42; $u++) {
+        // create fake users
+        for ($u = 0; $u < 50; $u++) {
             $user = new User;
 
+            // Hash user password before insert in the DB
             $hash = $this->hasher->hashPassword($user, "password");
 
             $user
@@ -41,15 +52,21 @@ class UserFixtures extends Fixture
                 ->setPassword($hash)
                 ->setCustomer($faker->randomElement($customers))
                 ->setUsername(
-                    $this->slugger->slug($user->getFirstName())
-                        . '.'
-                        . $this->slugger->slug($user->getLastName())
+                    strtolower(
+                        $this->slugger->slug($user->getFirstName())
+                            . '.'
+                            . $this->slugger->slug($user->getLastName())
+                    )
                 )
                 ->setEmail(
-                    $user->getUserIdentifier()
-                        . '@'
-                        . $this->slugger->slug($user->getCustomer()->getName())
-                        . '.com'
+                    strtolower(
+                        substr($this->slugger->slug($user->getFirstName()), 0, 1)
+                            . '.'
+                            . $this->slugger->slug($user->getLastName())
+                            . '@'
+                            . $this->slugger->slug($user->getCustomer()->getName())
+                            . '.com'
+                    )
                 );
 
             $manager->persist($user);
@@ -58,8 +75,14 @@ class UserFixtures extends Fixture
         $manager->flush();
     }
 
+    /**
+     * getDependencies
+     *
+     * @return void
+     */
     public function getDependencies()
     {
+        // Customer fixtures need to be loaded before User fixtures
         return [
             CustomerFixtures::class,
         ];
