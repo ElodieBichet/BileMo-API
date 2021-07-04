@@ -29,7 +29,7 @@ class Customer
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="The SIRET number is required")
-     * @Assert\Regex(pattern="/^[0-9]{14}$/", message="The format is invalid, please enter 14 digit")
+     * @Assert\Regex(pattern="/^[0-9]{3}\s[0-9]{3}\s[0-9]{3}\s[0-9]{5}$/", message="The format is invalid, please respect this format XXX XXX XXX XXXXX")
      */
     private $siret;
 
