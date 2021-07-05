@@ -42,7 +42,7 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users/{id}", name="api_user_details", methods={"GET"})
      */
-    public function details(User $user)
+    public function details(User $user = null)
     {
         // if user is not found or has not the same Customer than the current user
         if (!$user or !$this->isGranted("USER_SEE", $user)) {
