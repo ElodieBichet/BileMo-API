@@ -31,10 +31,11 @@ class UserController extends AbstractController
     public function list(): JsonResponse
     {
         // GET only users related to the same customer as the current authenticated user
-        $users = $this->userRepository->findBy(["customer" => $this->getUser()->getCustomer()]);
+        /* @var Customer */
+        $customer = $this->getUser()->getCustomer();
         $context = SerializationContext::create()->setGroups(array("user:list"));
 
-        $data = $this->serializer->serialize($users, 'json', $context);
+        $data = $this->serializer->serialize($customer->getUsers(), 'json', $context);
 
         return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
     }
