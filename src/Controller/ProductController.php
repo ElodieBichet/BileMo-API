@@ -6,24 +6,19 @@ use App\Entity\Product;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
-use JsonException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ProductController extends AbstractController
 {
     protected $serializer;
-    protected $validator;
     protected $productRepository;
 
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, ProductRepository $productRepository)
+    public function __construct(SerializerInterface $serializer, ProductRepository $productRepository)
     {
         $this->serializer = $serializer;
-        $this->validator = $validator;
         $this->productRepository = $productRepository;
     }
 
