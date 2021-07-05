@@ -16,6 +16,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"product:list"})
      */
     private $id;
 
@@ -29,6 +30,7 @@ class Product
 
     /**
      * @ORM\Column(type="datetime_immutable")
+     * @Groups({"product:details"})
      */
     private $createdAt;
 
