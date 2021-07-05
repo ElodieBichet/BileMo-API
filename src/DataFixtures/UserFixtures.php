@@ -43,13 +43,10 @@ class UserFixtures extends Fixture
         for ($u = 0; $u < 50; $u++) {
             $user = new User;
 
-            // Hash user password before insert in the DB
-            $hash = $this->hasher->hashPassword($user, "password");
-
             $user
                 ->setFirstName($faker->firstName())
                 ->setLastName($faker->lastName())
-                ->setPassword($hash)
+                ->setPassword($this->hasher->hashPassword($user, "password"))
                 ->setCustomer($faker->randomElement($customers))
                 ->setUsername(
                     strtolower(
