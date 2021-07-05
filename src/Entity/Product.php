@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\ProductRepository;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -15,6 +16,7 @@ class Product
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"product:list"})
      */
     private $id;
 
@@ -22,31 +24,37 @@ class Product
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="You must add a product name")
      * @Assert\Length(min=3, minMessage="The product name must have at least {{ limit }} characters")
+     * @Groups({"product:list", "product:details"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="datetime_immutable")
+     * @Groups({"product:details"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @Groups({"product:details"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="float")
+     * @Groups({"product:list", "product:details"})
      */
     private $price;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"product:details"})
      */
     private $color;
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups("product:list", "product:details")
      */
     private $availableQuantity;
 
