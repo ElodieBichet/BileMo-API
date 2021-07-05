@@ -36,10 +36,11 @@ class UserVoter extends Voter
                 // logic to determine if the user can SEE a user
                 // return true if connected user has the same customer than the user to display
                 return $user->getCustomer() === $subject->getCustomer();
+                break;
             case 'USER_DELETE':
                 // logic to determine if the user can DELETE a user
                 // return true if user is the user to delete
-                return $user === $subject;
+                return $user->getCustomer() === $subject->getCustomer();
                 break;
             case 'USER_EDIT':
                 // logic to determine if the user can EDIT a user
