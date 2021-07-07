@@ -57,6 +57,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Assert\Email(message="L'email n'est pas une adresse email valide")
      * @Groups({"user:details"})
      */
     private $email;
@@ -64,7 +65,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotBlank(message="A user has to be linked to a customer")
+     * @Assert\NotBlank(message="Un utilisateur doit être lié à un client")
      */
     private $customer;
 
