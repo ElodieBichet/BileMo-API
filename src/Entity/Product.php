@@ -22,8 +22,8 @@ class Product
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="You must add a product name")
-     * @Assert\Length(min=3, minMessage="The product name must have at least {{ limit }} characters")
+     * @Assert\NotBlank(message="Vous devez ajouter un nom de produit")
+     * @Assert\Length(min=3, minMessage="Le nom du produit doit contenir au moins {{ limit }} caractères")
      * @Groups({"product:list", "product:details"})
      */
     private $name;

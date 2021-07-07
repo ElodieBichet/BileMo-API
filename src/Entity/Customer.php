@@ -23,15 +23,15 @@ class Customer
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="You must add a name")
+     * @Assert\NotBlank(message="Vous devez ajouter un nom")
      * @Groups({"user:list"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="The SIRET number is required")
-     * @Assert\Regex(pattern="/^[0-9]{3}\s[0-9]{3}\s[0-9]{3}\s[0-9]{5}$/", message="The format is invalid, please respect this format XXX XXX XXX XXXXX")
+     * @Assert\NotBlank(message="Le numéro de SIRET est obligatoire")
+     * @Assert\Regex(pattern="/^[0-9]{3}\s[0-9]{3}\s[0-9]{3}\s[0-9]{5}$/", message="Le format est invalide, merci d'utiliser le format XXX XXX XXX XXXXX")
      */
     private $siret;
 
@@ -97,7 +97,7 @@ class Customer
         return $this;
     }
 
-    public function getIsAllowed(): ?bool
+    public function isAllowed(): ?bool
     {
         return $this->isAllowed;
     }

@@ -24,8 +24,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\NotBlank(message="Username can't be empty")
-     * @Assert\Length(min=3, minMessage="The username must have at least {{ limit }} characters")
+     * @Assert\NotBlank(message="Le champ username ne peut être vide")
+     * @Assert\Length(min=3, minMessage="Le champ username doit contenir au moins {{ limit }} caractères")
      * @Groups({"user:list", "user:details"})
      */
     private $username;
@@ -43,14 +43,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="You must add a firstName")
+     * @Assert\NotBlank(message="Vous devez indiquer un prénom")
      * @Groups({"user:list", "user:details"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="You must add a lastName")
+     * @Assert\NotBlank(message="Vous devez indiquer un nom")
      * @Groups({"user:list", "user:details"})
      */
     private $lastName;

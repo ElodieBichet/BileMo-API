@@ -9,7 +9,6 @@ use JMS\Serializer\SerializationContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class ProductController extends AbstractController
 {
@@ -39,8 +38,10 @@ class ProductController extends AbstractController
     public function details(Product $product = null): JsonResponse
     {
         if (!$product) {
-            $exception = new ResourceNotFoundException("Aucun produit trouvé avec cet identifiant");
-            return new JsonResponse($exception->getMessage(), JsonResponse::HTTP_NOT_FOUND);
+            return $this->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => "Aucun produit trouvé avec cet identifiant"
+            ], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $context = SerializationContext::create()->setGroups(array("product:details"));
