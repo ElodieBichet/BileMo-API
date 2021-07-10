@@ -4,32 +4,40 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Repository\ProductRepository;
+use App\Service\PaginationService;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductController extends AbstractController
 {
     protected $serializer;
     protected $productRepository;
+    protected $pagination;
 
-    public function __construct(SerializerInterface $serializer, ProductRepository $productRepository)
+    public function __construct(SerializerInterface $serializer, ProductRepository $productRepository, PaginationService $pagination)
     {
         $this->serializer = $serializer;
         $this->productRepository = $productRepository;
+        $this->pagination = $pagination;
     }
 
     /**
      * @Route("/api/products", name="api_product_list", methods={"GET"})
      */
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $context = SerializationContext::create()->setGroups(array("product:list"));
-        $data = $this->serializer->serialize($this->productRepository->findAll(), 'json', $context);
+        $queryBuilder = $this->productRepository->createQueryBuilder('product');
 
-        return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
+        $data = $this->pagination->paginate($request, $queryBuilder);
+
+        $context = SerializationContext::create()->setGroups(array("product:list"));
+        $jsonData = $this->serializer->serialize($data, 'json', $context);
+
+        return new JsonResponse($jsonData, JsonResponse::HTTP_OK, [], true);
     }
 
     /**

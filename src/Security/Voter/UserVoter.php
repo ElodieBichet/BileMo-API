@@ -34,7 +34,7 @@ class UserVoter extends Voter
         }
 
         // Users can see, add or delete users from their own customer
-        if (in_array($attribute, ['USER_SEE', 'USER_EDIT', 'USER_DELETE', 'USER_ADD'])) {
+        if (in_array($attribute, ['USER_SEE', 'USER_DELETE', 'USER_ADD'])) {
             return $user->getCustomer() === $subject->getCustomer();
         }
 
