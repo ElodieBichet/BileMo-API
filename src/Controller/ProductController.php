@@ -32,7 +32,9 @@ class ProductController extends AbstractController
      */
     public function list(Request $request): JsonResponse
     {
-        $data = $this->pagination->paginate($request, 'product', $this->productRepository);
+        $queryBuilder = $this->productRepository->createQueryBuilder('product');
+
+        $data = $this->pagination->paginate($request, $queryBuilder);
 
         $context = SerializationContext::create()->setGroups(array("product:list"));
         $jsonData = $this->serializer->serialize($data, 'json', $context);

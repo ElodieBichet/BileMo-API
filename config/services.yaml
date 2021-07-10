@@ -5,8 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     products_per_page: 10
-    products_orderby: createdAt
-    products_order: DESC
+    products_orderby: name
+    products_order: ASC
     users_per_page: 10
     users_orderby: lastName
     users_order: ASC
