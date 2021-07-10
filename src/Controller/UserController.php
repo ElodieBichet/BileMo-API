@@ -5,9 +5,8 @@ namespace App\Controller;
 use Exception;
 use Throwable;
 use App\Entity\User;
-use PhpParser\Node\Stmt\Catch_;
-use PhpParser\Node\Stmt\TryCatch;
 use App\Repository\UserRepository;
+use App\Service\PaginationService;
 use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
@@ -23,28 +22,38 @@ class UserController extends AbstractController
     protected $serializer;
     protected $validator;
     protected $userRepository;
+    protected $pagination;
 
-    public function __construct(SerializerInterface $serializer, ValidatorInterface $validator, UserRepository $userRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        ValidatorInterface $validator,
+        UserRepository $userRepository,
+        PaginationService $pagination
+    ) {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->userRepository = $userRepository;
+        $this->pagination = $pagination;
     }
 
     /**
      * @Route("/api/users", name="api_user_list", methods={"GET"})
      */
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
         // GET only users related to the same customer as the current authenticated user
-
         /* @var Customer */
         $customer = $this->getUser()->getCustomer();
+        $queryBuilder = $this->userRepository->createQueryBuilder('user')
+            ->where("user.customer = " . $customer->getId());
+
+        $data = $this->pagination->paginate($request, $queryBuilder);
+
         $context = SerializationContext::create()->setGroups(array("user:list"));
 
-        $data = $this->serializer->serialize($customer->getUsers(), 'json', $context);
+        $jsonData = $this->serializer->serialize($data, 'json', $context);
 
-        return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
+        return new JsonResponse($jsonData, JsonResponse::HTTP_OK, [], true);
     }
 
     /**
