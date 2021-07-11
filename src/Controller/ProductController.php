@@ -3,14 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Product;
-use App\Repository\ProductRepository;
+use Hateoas\HateoasBuilder;
 use App\Service\PaginationService;
+use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 
 class ProductController extends AbstractController
 {
@@ -30,6 +31,7 @@ class ProductController extends AbstractController
      */
     public function list(Request $request): JsonResponse
     {
+
         $queryBuilder = $this->productRepository->createQueryBuilder('product');
 
         $data = $this->pagination->paginate($request, $queryBuilder);

@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use Exception;
 use Throwable;
 use App\Entity\User;
 use App\Repository\UserRepository;
