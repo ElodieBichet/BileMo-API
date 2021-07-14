@@ -53,7 +53,6 @@ class UserController extends AbstractController
         $data = $this->pagination->paginate($request, $queryBuilder);
 
         $context = SerializationContext::create()->setGroups(array("user:list"));
-
         $jsonData = $this->serializer->serialize($data, 'json', $context);
 
         return new JsonResponse($jsonData, JsonResponse::HTTP_OK, [], true);

@@ -17,7 +17,17 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         parameters = { "id" = "expr(object.getId())" },
  *         absolute = true
  *     ),
+ *     attributes = {"actions": { "read": "GET" }},
  *     exclusion = @Hateoas\Exclusion(groups = {"product:list", "product:details"})
+ * )
+ * @Hateoas\Relation(
+ *     name = "all",
+ *     href = @Hateoas\Route(
+ *         "api_product_list",
+ *         absolute = true
+ *     ),
+ *     attributes = {"actions": { "read": "GET" }},
+ *     exclusion = @Hateoas\Exclusion(groups = {"product:detail"})
  * )
  */
 class Product

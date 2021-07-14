@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Product;
-use Hateoas\HateoasBuilder;
 use App\Service\PaginationService;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
