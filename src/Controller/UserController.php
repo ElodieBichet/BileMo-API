@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class UserController extends AbstractController
 {
@@ -22,17 +23,20 @@ class UserController extends AbstractController
     protected $validator;
     protected $userRepository;
     protected $pagination;
+    protected $hasher;
 
     public function __construct(
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         UserRepository $userRepository,
-        PaginationService $pagination
+        PaginationService $pagination,
+        UserPasswordHasherInterface $hasher
     ) {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->userRepository = $userRepository;
         $this->pagination = $pagination;
+        $this->hasher = $hasher;
     }
 
     /**
@@ -97,6 +101,7 @@ class UserController extends AbstractController
         try {
             /** @var User */
             $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
+            $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
             $user->setCustomer($this->getUser()->getCustomer());
 
             $errors = $this->validator->validate($user);
@@ -112,6 +117,58 @@ class UserController extends AbstractController
             $data = $this->serializer->serialize($user, 'json', $context);
 
             return new JsonResponse($data, 201, [], true);
+        } catch (Throwable $th) {
+            if ($th instanceof UniqueConstraintViolationException) {
+                return $this->json([
+                    'status' => 400,
+                    'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
+                ], 400);
+            }
+            return $this->json([
+                'status' => 400,
+                'message' => $th->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * @Route("/api/users/{id}", name="api_user_update", methods={"PUT"})
+     */
+    public function update(User $user, Request $request, EntityManagerInterface $entityManager)
+    {
+        // if user is not found
+        if (!$user) {
+            return $this->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => "Aucun utilisateur trouvé avec cet identifiant"
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+        // if current user can't add a new user
+        if (!$this->isGranted("USER_EDIT", $user)) {
+            return $this->json([
+                'status' => JsonResponse::HTTP_UNAUTHORIZED,
+                'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
+            ], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        try {
+            $updatedUser = $this->serializer->deserialize($request->getContent(), User::class, 'json');
+            if ($updatedUser->getFirstName()) $user->setFirstName($updatedUser->getFirstName());
+            if ($updatedUser->getLastName()) $user->setLastName($updatedUser->getLastName());
+            if ($updatedUser->getEmail()) $user->setEmail($updatedUser->getEmail());
+            if ($updatedUser->getPassword()) $user->setPassword($this->hasher->hashPassword($user, $updatedUser->getPassword()));
+
+            $errors = $this->validator->validate($user);
+
+            if (count($errors) > 0) {
+                return new JsonResponse($this->serializer->serialize($errors, 'json'), 400, [], true);
+            }
+            $entityManager->flush();
+
+            $context = SerializationContext::create()->setGroups(array("user:details"));
+            $data = $this->serializer->serialize($user, 'json', $context);
+
+            return new JsonResponse($data, 204, [], true);
         } catch (Throwable $th) {
             if ($th instanceof UniqueConstraintViolationException) {
                 return $this->json([
