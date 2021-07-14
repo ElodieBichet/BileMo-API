@@ -66,14 +66,14 @@ class UserController extends AbstractController
     {
         // if user is not found
         if (!$user) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'message' => "Aucun utilisateur trouvé avec cet identifiant"
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         // if user can't be seen by the current user
         if (!$this->isGranted("USER_SEE", $user)) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
             ], JsonResponse::HTTP_NOT_FOUND);
@@ -92,7 +92,7 @@ class UserController extends AbstractController
     {
         // if current user can't add a new user
         if (!$this->isGranted("USER_ADD", $this->getUser())) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
             ], JsonResponse::HTTP_NOT_FOUND);
@@ -119,12 +119,12 @@ class UserController extends AbstractController
             return new JsonResponse($data, 201, [], true);
         } catch (Throwable $th) {
             if ($th instanceof UniqueConstraintViolationException) {
-                return $this->json([
+                return new JsonResponse([
                     'status' => 400,
                     'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
                 ], 400);
             }
-            return $this->json([
+            return new JsonResponse([
                 'status' => 400,
                 'message' => $th->getMessage()
             ], 400);
@@ -138,14 +138,14 @@ class UserController extends AbstractController
     {
         // if user is not found
         if (!$user) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'message' => "Aucun utilisateur trouvé avec cet identifiant"
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         // if current user can't add a new user
         if (!$this->isGranted("USER_EDIT", $user)) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
             ], JsonResponse::HTTP_NOT_FOUND);
@@ -171,12 +171,12 @@ class UserController extends AbstractController
             return new JsonResponse($data, 204, [], true);
         } catch (Throwable $th) {
             if ($th instanceof UniqueConstraintViolationException) {
-                return $this->json([
+                return new JsonResponse([
                     'status' => 400,
                     'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
                 ], 400);
             }
-            return $this->json([
+            return new JsonResponse([
                 'status' => 400,
                 'message' => $th->getMessage()
             ], 400);
@@ -190,14 +190,14 @@ class UserController extends AbstractController
     {
         // if user is not found
         if (!$user) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'message' => "Aucun utilisateur trouvé avec cet identifiant"
             ], JsonResponse::HTTP_NOT_FOUND);
         }
         // if user can't be deleted by the current user
         if (!$this->isGranted("USER_DELETE", $user)) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_UNAUTHORIZED,
                 'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
             ], JsonResponse::HTTP_NOT_FOUND);

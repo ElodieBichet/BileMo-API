@@ -31,7 +31,6 @@ class ProductController extends AbstractController
      */
     public function list(Request $request): JsonResponse
     {
-
         $queryBuilder = $this->productRepository->createQueryBuilder('product');
 
         $data = $this->pagination->paginate($request, $queryBuilder);
@@ -48,7 +47,7 @@ class ProductController extends AbstractController
     public function details(Product $product = null): JsonResponse
     {
         if (!$product) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'message' => "Aucun produit trouvé avec cet identifiant"
             ], JsonResponse::HTTP_NOT_FOUND);
