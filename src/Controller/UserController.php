@@ -106,7 +106,12 @@ class UserController extends AbstractController
             $errors = $this->validator->validate($user);
 
             if (count($errors) > 0) {
-                return new JsonResponse($this->serializer->serialize($errors, 'json'), 400, [], true);
+                return new JsonResponse(
+                    $this->serializer->serialize($errors, 'json'),
+                    JsonResponse::HTTP_BAD_REQUEST,
+                    [],
+                    true
+                );
             }
 
             $entityManager->persist($user);
@@ -115,18 +120,18 @@ class UserController extends AbstractController
             $context = SerializationContext::create()->setGroups(array("user:details"));
             $data = $this->serializer->serialize($user, 'json', $context);
 
-            return new JsonResponse($data, 201, [], true);
+            return new JsonResponse($data, JsonResponse::HTTP_CREATED, [], true);
         } catch (Throwable $th) {
             if ($th instanceof UniqueConstraintViolationException) {
                 return new JsonResponse([
-                    'status' => 400,
+                    'status' => JsonResponse::HTTP_BAD_REQUEST,
                     'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
-                ], 400);
+                ], JsonResponse::HTTP_BAD_REQUEST);
             }
             return new JsonResponse([
-                'status' => 400,
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
                 'message' => $th->getMessage()
-            ], 400);
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
@@ -160,25 +165,30 @@ class UserController extends AbstractController
             $errors = $this->validator->validate($user);
 
             if (count($errors) > 0) {
-                return new JsonResponse($this->serializer->serialize($errors, 'json'), 400, [], true);
+                return new JsonResponse(
+                    $this->serializer->serialize($errors, 'json'),
+                    JsonResponse::HTTP_BAD_REQUEST,
+                    [],
+                    true
+                );
             }
             $entityManager->flush();
 
             $context = SerializationContext::create()->setGroups(array("user:details"));
             $data = $this->serializer->serialize($user, 'json', $context);
 
-            return new JsonResponse($data, 204, [], true);
+            return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
         } catch (Throwable $th) {
             if ($th instanceof UniqueConstraintViolationException) {
                 return new JsonResponse([
-                    'status' => 400,
+                    'status' => JsonResponse::HTTP_BAD_REQUEST,
                     'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
-                ], 400);
+                ], JsonResponse::HTTP_BAD_REQUEST);
             }
             return new JsonResponse([
-                'status' => 400,
+                'status' => JsonResponse::HTTP_BAD_REQUEST,
                 'message' => $th->getMessage()
-            ], 400);
+            ], JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
