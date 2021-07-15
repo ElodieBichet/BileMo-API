@@ -3,14 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Product;
-use App\Repository\ProductRepository;
 use App\Service\PaginationService;
+use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 
 class ProductController extends AbstractController
 {
@@ -46,7 +46,7 @@ class ProductController extends AbstractController
     public function details(Product $product = null): JsonResponse
     {
         if (!$product) {
-            return $this->json([
+            return new JsonResponse([
                 'status' => JsonResponse::HTTP_NOT_FOUND,
                 'message' => "Aucun produit trouvé avec cet identifiant"
             ], JsonResponse::HTTP_NOT_FOUND);

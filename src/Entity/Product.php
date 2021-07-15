@@ -5,10 +5,30 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\ProductRepository;
 use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=ProductRepository::class)
+ * @Hateoas\Relation(
+ *     name = "self",
+ *     href = @Hateoas\Route(
+ *         "api_product_details",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     ),
+ *     attributes = {"actions": { "read": "GET" }},
+ *     exclusion = @Hateoas\Exclusion(groups = {"product:list", "product:details"})
+ * )
+ * @Hateoas\Relation(
+ *     name = "all",
+ *     href = @Hateoas\Route(
+ *         "api_product_list",
+ *         absolute = true
+ *     ),
+ *     attributes = {"actions": { "read": "GET" }},
+ *     exclusion = @Hateoas\Exclusion(groups = {"product:detail"})
+ * )
  */
 class Product
 {

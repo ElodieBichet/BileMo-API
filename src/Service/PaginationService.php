@@ -2,16 +2,19 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\QueryBuilder;
+use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 class PaginationService
 {
     protected $defaults;
+    protected $serializer;
 
-    public function __construct(array $defaults)
+    public function __construct(array $defaults, SerializerInterface $serializer)
     {
         $this->defaults = $defaults;
+        $this->serializer = $serializer;
     }
 
     public function paginate(Request $request, QueryBuilder $queryBuilder)
@@ -23,11 +26,10 @@ class PaginationService
 
         // get parameters according to the request
         $page = ($request->get('page')) ?: 1;
+
         $limit = (null !== $request->get('limit')) ? (int) $request->get('limit') : $default_options['limit'];
 
         $orderby = ($request->get('orderby')) ?: $default_options['orderby'];
-        $orderby = ($orderby == "quantity") ? "availableQuantity" : $orderby;
-        $orderby = ($orderby == "date") ? "createdAt" : $orderby;
 
         $order = $default_options['order'];
         $inverse = $request->get('inverse');
