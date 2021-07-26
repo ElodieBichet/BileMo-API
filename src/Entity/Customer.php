@@ -24,7 +24,7 @@ class Customer
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Vous devez ajouter un nom")
-     * @Groups({"user:list"})
+     * @Groups({"user:details"})
      */
     private $name;
 
@@ -32,11 +32,13 @@ class Customer
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message="Le numéro de SIRET est obligatoire")
      * @Assert\Regex(pattern="/^[0-9]{3}\s[0-9]{3}\s[0-9]{3}\s[0-9]{5}$/", message="Le format est invalide, merci d'utiliser le format XXX XXX XXX XXXXX")
+     * @Groups({"user:details"})
      */
     private $siret;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"user:details"})
      */
     private $expireAt;
 
@@ -47,7 +49,6 @@ class Customer
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="customer", orphanRemoval=true)
-     * @Groups({"user:list"})
      */
     private $users;
 
