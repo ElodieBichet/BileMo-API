@@ -41,3 +41,13 @@ services:
                     orderby: '%users_orderby%'
                     order: '%users_order%'
             # $repository: App\Repository\ProductRepository 
+
+    App\Listener\ExceptionListener:
+        tags:
+            [
+                {
+                    name: kernel.event_listener,
+                    event: kernel.exception,
+                    method: JsonifyException
+                }
+            ]
