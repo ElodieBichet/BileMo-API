@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Throwable;
+use JsonException;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\PaginationService;
@@ -12,6 +13,7 @@ use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,19 +65,12 @@ class UserController extends AbstractController
      */
     public function details(User $user = null)
     {
-        // if user is not found
-        if (!$user) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_NOT_FOUND,
-                'message' => "Aucun utilisateur trouvé avec cet identifiant"
-            ], JsonResponse::HTTP_NOT_FOUND);
-        }
+        // check if user exists
+        $this->checkUser($user);
+
         // if user can't be seen by the current user
         if (!$this->isGranted("USER_SEE", $user)) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
-            ], JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $context = SerializationContext::create()->setGroups(array("user:details"));
@@ -91,10 +86,7 @@ class UserController extends AbstractController
     {
         // if current user can't add a new user
         if (!$this->isGranted("USER_ADD", $this->getUser())) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
-            ], JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         try {
@@ -103,16 +95,7 @@ class UserController extends AbstractController
             $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
             $user->setCustomer($this->getUser()->getCustomer());
 
-            $errors = $this->validator->validate($user);
-
-            if (count($errors) > 0) {
-                return new JsonResponse(
-                    $this->serializer->serialize($errors, 'json'),
-                    JsonResponse::HTTP_BAD_REQUEST,
-                    [],
-                    true
-                );
-            }
+            $this->validateUser($user);
 
             $entityManager->persist($user);
             $entityManager->flush();
@@ -122,37 +105,25 @@ class UserController extends AbstractController
 
             return new JsonResponse($data, JsonResponse::HTTP_CREATED, [], true);
         } catch (Throwable $th) {
+            $message = $th->getMessage();
             if ($th instanceof UniqueConstraintViolationException) {
-                return new JsonResponse([
-                    'status' => JsonResponse::HTTP_BAD_REQUEST,
-                    'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
-                ], JsonResponse::HTTP_BAD_REQUEST);
+                $message = "Violation d'une contrainte d'unicité : cet utilisateur existe déjà";
             }
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_BAD_REQUEST,
-                'message' => $th->getMessage()
-            ], JsonResponse::HTTP_BAD_REQUEST);
+            throw new JsonException($message, JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
     /**
      * @Route("/api/users/{id}", name="api_user_update", methods={"PUT"})
      */
-    public function update(User $user, Request $request, EntityManagerInterface $entityManager)
+    public function update(User $user = null, Request $request, EntityManagerInterface $entityManager)
     {
-        // if user is not found
-        if (!$user) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_NOT_FOUND,
-                'message' => "Aucun utilisateur trouvé avec cet identifiant"
-            ], JsonResponse::HTTP_NOT_FOUND);
-        }
+        // check if user exists
+        $this->checkUser($user);
+
         // if current user can't add a new user
         if (!$this->isGranted("USER_EDIT", $user)) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
-            ], JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         try {
@@ -162,16 +133,9 @@ class UserController extends AbstractController
             if ($updatedUser->getEmail()) $user->setEmail($updatedUser->getEmail());
             if ($updatedUser->getPassword()) $user->setPassword($this->hasher->hashPassword($user, $updatedUser->getPassword()));
 
-            $errors = $this->validator->validate($user);
+            // validate User
+            $this->validateUser($user);
 
-            if (count($errors) > 0) {
-                return new JsonResponse(
-                    $this->serializer->serialize($errors, 'json'),
-                    JsonResponse::HTTP_BAD_REQUEST,
-                    [],
-                    true
-                );
-            }
             $entityManager->flush();
 
             $context = SerializationContext::create()->setGroups(array("user:details"));
@@ -179,16 +143,11 @@ class UserController extends AbstractController
 
             return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
         } catch (Throwable $th) {
+            $message = $th->getMessage();
             if ($th instanceof UniqueConstraintViolationException) {
-                return new JsonResponse([
-                    'status' => JsonResponse::HTTP_BAD_REQUEST,
-                    'message' => "Violation d'une contrainte d'unicité : cet utilisateur existe déjà"
-                ], JsonResponse::HTTP_BAD_REQUEST);
+                $message = "Violation d'une contrainte d'unicité : cet utilisateur existe déjà";
             }
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_BAD_REQUEST,
-                'message' => $th->getMessage()
-            ], JsonResponse::HTTP_BAD_REQUEST);
+            throw new JsonException($message, JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
@@ -197,19 +156,12 @@ class UserController extends AbstractController
      */
     public function remove(User $user = null, EntityManagerInterface $entityManager)
     {
-        // if user is not found
-        if (!$user) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_NOT_FOUND,
-                'message' => "Aucun utilisateur trouvé avec cet identifiant"
-            ], JsonResponse::HTTP_NOT_FOUND);
-        }
+        // check if user exists
+        $this->checkUser($user);
+
         // if user can't be deleted by the current user
         if (!$this->isGranted("USER_DELETE", $user)) {
-            return new JsonResponse([
-                'status' => JsonResponse::HTTP_UNAUTHORIZED,
-                'message' => "Vous n'êtes pas autorisé à effectuer cette requête"
-            ], JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $entityManager->remove($user);
@@ -219,5 +171,39 @@ class UserController extends AbstractController
             null,
             JsonResponse::HTTP_NO_CONTENT
         );
+    }
+
+    /**
+     * checkUser
+     *
+     * @param  mixed $user
+     * @return void
+     */
+    protected function checkUser($user)
+    {
+        // if user is not found
+        if (!$user || !($user instanceof User)) {
+            throw new HttpException(JsonResponse::HTTP_NOT_FOUND, "Aucun utilisateur trouvé avec cet identifiant");
+        }
+    }
+
+    /**
+     * validateUser
+     *
+     * @param  mixed $user
+     * @return mixed void|JsonResponse
+     */
+    protected function validateUser($user)
+    {
+        $errors = $this->validator->validate($user);
+
+        if (count($errors) > 0) {
+            return new JsonResponse(
+                $this->serializer->serialize($errors, 'json'),
+                JsonResponse::HTTP_BAD_REQUEST,
+                [],
+                true
+            );
+        }
     }
 }

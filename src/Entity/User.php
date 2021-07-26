@@ -86,6 +86,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank(message="Un utilisateur doit être lié à un client")
+     * @Groups({"user:details"})
      */
     private $customer;
 
