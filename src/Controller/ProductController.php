@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
+use JsonException;
 use App\Entity\Product;
 use App\Service\PaginationService;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
-use JsonException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
