@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use JsonException;
 use App\Entity\Product;
+use OpenApi\Annotations as OA;
 use App\Service\PaginationService;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
@@ -28,6 +29,34 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/api/products", name="api_product_list", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns the list of products"
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="The page number",
+     *     @OA\Schema(type="int", default = "1")
+     * )
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Number of items by page (0 for all items)",
+     *     @OA\Schema(type="int", default = 10)
+     * )
+     * @OA\Parameter(
+     *     name="orderby",
+     *     in="query",
+     *     description="Name of the property used to sort items",
+     *     @OA\Schema(type="string", default = "name")
+     * )
+     * @OA\Parameter(
+     *     name="inverse",
+     *     in="query",
+     *     description="Set to true (1) to sort with descending order, and to false (0) to sort with ascending order",
+     *     @OA\Schema(type="boolean", default = false)
+     * )
      */
     public function list(Request $request): JsonResponse
     {
@@ -43,6 +72,10 @@ class ProductController extends AbstractController
 
     /**
      * @Route("/api/products/{id}", name="api_product_details", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a product"
+     * )
      */
     public function details(Product $product = null): JsonResponse
     {
