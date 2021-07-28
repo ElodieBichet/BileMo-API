@@ -7,7 +7,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 
 class ExceptionListener
 {
-    public function JsonifyException(ExceptionEvent $event)
+    public function jsonifyException(ExceptionEvent $event)
     {
         $exception = $event->getThrowable();
 

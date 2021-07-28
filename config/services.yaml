@@ -43,6 +43,6 @@ services:
                 {
                     name: kernel.event_listener,
                     event: kernel.exception,
-                    method: JsonifyException
+                    method: jsonifyException
                 }
             ]
