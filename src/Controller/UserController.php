@@ -5,6 +5,7 @@ namespace App\Controller;
 use Throwable;
 use JsonException;
 use App\Entity\User;
+use OpenApi\Annotations as OA;
 use App\Repository\UserRepository;
 use App\Service\PaginationService;
 use JMS\Serializer\SerializerInterface;
@@ -43,6 +44,34 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users", name="api_user_list", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns the list of users from the same customer"
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="The page number",
+     *     @OA\Schema(type="int", default = "1")
+     * )
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Number of items by page (0 for all items)",
+     *     @OA\Schema(type="int", default = 5)
+     * )
+     * @OA\Parameter(
+     *     name="orderby",
+     *     in="query",
+     *     description="Name of the property used to sort items",
+     *     @OA\Schema(type="string", default = "lastName")
+     * )
+     * @OA\Parameter(
+     *     name="inverse",
+     *     in="query",
+     *     description="Set to true (1) to sort with descending order, and to false (0) to sort with ascending order",
+     *     @OA\Schema(type="boolean", default = false)
+     * )
      */
     public function list(Request $request): JsonResponse
     {
@@ -62,6 +91,10 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users/{id}", name="api_user_details", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns a user"
+     * )
      */
     public function details(User $user = null)
     {
