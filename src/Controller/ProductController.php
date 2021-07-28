@@ -9,6 +9,7 @@ use App\Service\PaginationService;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -57,6 +58,7 @@ class ProductController extends AbstractController
      *     description="Set to true (1) to sort with descending order, and to false (0) to sort with ascending order",
      *     @OA\Schema(type="boolean", default = false)
      * )
+     * @OA\Tag(name="Products")
      */
     public function list(Request $request): JsonResponse
     {
@@ -76,6 +78,7 @@ class ProductController extends AbstractController
      *     response=JsonResponse::HTTP_OK,
      *     description="Returns a product"
      * )
+     * @OA\Tag(name="Products")
      */
     public function details(Product $product = null): JsonResponse
     {

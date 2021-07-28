@@ -72,6 +72,7 @@ class UserController extends AbstractController
      *     description="Set to true (1) to sort with descending order, and to false (0) to sort with ascending order",
      *     @OA\Schema(type="boolean", default = false)
      * )
+     * @OA\Tag(name="Users")
      */
     public function list(Request $request): JsonResponse
     {
@@ -95,6 +96,7 @@ class UserController extends AbstractController
      *     response=JsonResponse::HTTP_OK,
      *     description="Returns a user"
      * )
+     * @OA\Tag(name="Users")
      */
     public function details(User $user = null)
     {
@@ -118,6 +120,7 @@ class UserController extends AbstractController
      *     response=JsonResponse::HTTP_CREATED,
      *     description="Create a user and returns it"
      * )
+     * @OA\Tag(name="Users")
      */
     public function add(Request $request, EntityManagerInterface $entityManager)
     {
@@ -156,6 +159,7 @@ class UserController extends AbstractController
      *     response=JsonResponse::HTTP_OK,
      *     description="Update a user and returns it"
      * )
+     * @OA\Tag(name="Users")
      */
     public function update(User $user = null, Request $request, EntityManagerInterface $entityManager)
     {
@@ -198,6 +202,7 @@ class UserController extends AbstractController
      *     response=JsonResponse::HTTP_NO_CONTENT,
      *     description="Delete a user"
      * )
+     * @OA\Tag(name="Users")
      */
     public function remove(User $user = null, EntityManagerInterface $entityManager)
     {
