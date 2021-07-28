@@ -45,7 +45,7 @@ class UserController extends AbstractController
     /**
      * @Route("/api/users", name="api_user_list", methods={"GET"})
      * @OA\Response(
-     *     response=200,
+     *     response=JsonResponse::HTTP_OK,
      *     description="Returns the list of users from the same customer"
      * )
      * @OA\Parameter(
@@ -90,9 +90,9 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_details", methods={"GET"})
+     * @Route("/api/users/{id<\d+>}", name="api_user_details", methods={"GET"})
      * @OA\Response(
-     *     response=200,
+     *     response=JsonResponse::HTTP_OK,
      *     description="Returns a user"
      * )
      */
@@ -114,6 +114,10 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users", name="api_user_add", methods={"POST"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_CREATED,
+     *     description="Create a user and returns it"
+     * )
      */
     public function add(Request $request, EntityManagerInterface $entityManager)
     {
@@ -147,7 +151,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_update", methods={"PUT"})
+     * @Route("/api/users/{id<\d+>}", name="api_user_update", methods={"PUT"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_OK,
+     *     description="Update a user and returns it"
+     * )
      */
     public function update(User $user = null, Request $request, EntityManagerInterface $entityManager)
     {
@@ -185,7 +193,11 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_delete", methods={"DELETE"})
+     * @Route("/api/users/{id<\d+>}", name="api_user_delete", methods={"DELETE"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_NO_CONTENT,
+     *     description="Delete a user"
+     * )
      */
     public function remove(User $user = null, EntityManagerInterface $entityManager)
     {

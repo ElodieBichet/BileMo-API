@@ -30,7 +30,7 @@ class ProductController extends AbstractController
     /**
      * @Route("/api/products", name="api_product_list", methods={"GET"})
      * @OA\Response(
-     *     response=200,
+     *     response=JsonResponse::HTTP_OK,
      *     description="Returns the list of products"
      * )
      * @OA\Parameter(
@@ -71,9 +71,9 @@ class ProductController extends AbstractController
     }
 
     /**
-     * @Route("/api/products/{id}", name="api_product_details", methods={"GET"})
+     * @Route("/api/products/{id<\d+>}", name="api_product_details", methods={"GET"})
      * @OA\Response(
-     *     response=200,
+     *     response=JsonResponse::HTTP_OK,
      *     description="Returns a product"
      * )
      */
