@@ -43,13 +43,13 @@ class ProductController extends AbstractController
      * @OA\Parameter(
      *     name="limit",
      *     in="query",
-     *     description="Number of items by page (0 for all items)",
+     *     description="Number of items by page (0 to get all items)",
      *     @OA\Schema(type="int", default = 10)
      * )
      * @OA\Parameter(
      *     name="orderby",
      *     in="query",
-     *     description="Name of the property used to sort items",
+     *     description="Name of the property used to sort items: id, name, created_at, description, price, color, available_quantity",
      *     @OA\Schema(type="string", default = "name")
      * )
      * @OA\Parameter(
@@ -77,6 +77,10 @@ class ProductController extends AbstractController
      * @OA\Response(
      *     response=JsonResponse::HTTP_OK,
      *     description="Returns a product"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_NOT_FOUND,
+     *     description="Product not found"
      * )
      * @OA\Tag(name="Products")
      */
