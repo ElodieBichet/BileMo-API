@@ -11,12 +11,9 @@ use App\Service\PaginationService;
 use JMS\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use JMS\Serializer\SerializationContext;
-use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Doctrine\DBAL\Exception\ConstraintViolationException;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -115,7 +112,7 @@ class UserController extends AbstractController
 
         // if user can't be seen by the current user
         if (!$this->isGranted("USER_SEE", $user)) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $context = SerializationContext::create()->setGroups(array("user:details"));
@@ -179,7 +176,7 @@ class UserController extends AbstractController
     {
         // if current user can't add a new user
         if (!$this->isGranted("USER_ADD", $this->getUser())) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         try {
@@ -203,7 +200,7 @@ class UserController extends AbstractController
         } catch (Throwable $th) {
             $message = $th->getMessage();
             if ($th instanceof UniqueConstraintViolationException) {
-                $message = "Violation d'une contrainte d'unicité : cet utilisateur existe déjà";
+                $message = "Uniqueness constraint violation: this user already exists";
             }
             throw new JsonException($message, JsonResponse::HTTP_BAD_REQUEST);
         }
@@ -266,7 +263,7 @@ class UserController extends AbstractController
 
         // if current user can't add a new user
         if (!$this->isGranted("USER_EDIT", $user)) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         try {
@@ -290,9 +287,6 @@ class UserController extends AbstractController
             return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
         } catch (Throwable $th) {
             $message = $th->getMessage();
-            if ($th instanceof UniqueConstraintViolationException) {
-                $message = "Violation d'une contrainte d'unicité : cet utilisateur existe déjà";
-            }
             throw new JsonException($message, JsonResponse::HTTP_BAD_REQUEST);
         }
     }
@@ -320,7 +314,7 @@ class UserController extends AbstractController
 
         // if user can't be deleted by the current user
         if (!$this->isGranted("USER_DELETE", $user)) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $entityManager->remove($user);
@@ -342,7 +336,7 @@ class UserController extends AbstractController
     {
         // if user is not found
         if (!$user || !($user instanceof User)) {
-            throw new JsonException("Aucun utilisateur trouvé avec cet identifiant", JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonException("Incorrect identifier or no user found with this identifier", JsonResponse::HTTP_NOT_FOUND);
         }
     }
 

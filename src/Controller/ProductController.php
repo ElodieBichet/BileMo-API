@@ -9,7 +9,6 @@ use App\Service\PaginationService;
 use App\Repository\ProductRepository;
 use JMS\Serializer\SerializerInterface;
 use JMS\Serializer\SerializationContext;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -87,7 +86,7 @@ class ProductController extends AbstractController
     public function details(Product $product = null): JsonResponse
     {
         if (!$product || !($product instanceof Product)) {
-            throw new JsonException("Aucun produit trouvé avec cet identifiant", JsonResponse::HTTP_NOT_FOUND);
+            throw new JsonException("Incorrect identifier or no product found with this identifier", JsonResponse::HTTP_NOT_FOUND);
         }
 
         $context = SerializationContext::create()->setGroups(array("product:details"));
