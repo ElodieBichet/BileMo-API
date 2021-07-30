@@ -5,6 +5,7 @@ namespace App\Controller;
 use Throwable;
 use JsonException;
 use App\Entity\User;
+use OpenApi\Annotations as OA;
 use App\Repository\UserRepository;
 use App\Service\PaginationService;
 use JMS\Serializer\SerializerInterface;
@@ -13,7 +14,6 @@ use JMS\Serializer\SerializationContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,6 +43,35 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users", name="api_user_list", methods={"GET"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_OK,
+     *     description="Returns the list of your users"
+     * )
+     * @OA\Parameter(
+     *     name="page",
+     *     in="query",
+     *     description="The page number",
+     *     @OA\Schema(type="int", default = "1")
+     * )
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     description="Number of items by page (0 to get all items)",
+     *     @OA\Schema(type="int", default = 5)
+     * )
+     * @OA\Parameter(
+     *     name="orderby",
+     *     in="query",
+     *     description="Name of the property used to sort items: id, username, first_name, last_name, email",
+     *     @OA\Schema(type="string", default = "lastName")
+     * )
+     * @OA\Parameter(
+     *     name="inverse",
+     *     in="query",
+     *     description="Set to true (1) to sort with descending order, and to false (0) to sort with ascending order",
+     *     @OA\Schema(type="boolean", default = false)
+     * )
+     * @OA\Tag(name="Users")
      */
     public function list(Request $request): JsonResponse
     {
@@ -61,7 +90,20 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_details", methods={"GET"})
+     * @Route("/api/users/{id<\d+>}", name="api_user_details", methods={"GET"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_OK,
+     *     description="Returns a user"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_UNAUTHORIZED,
+     *     description="Unauthorized request"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_NOT_FOUND,
+     *     description="User not found"
+     * )
+     * @OA\Tag(name="Users")
      */
     public function details(User $user = null)
     {
@@ -70,7 +112,7 @@ class UserController extends AbstractController
 
         // if user can't be seen by the current user
         if (!$this->isGranted("USER_SEE", $user)) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $context = SerializationContext::create()->setGroups(array("user:details"));
@@ -81,12 +123,60 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users", name="api_user_add", methods={"POST"})
+     * @OA\RequestBody(
+     *     description="The new user to create",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="application/Json",
+     *         @OA\Schema(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="username",
+     *                 description="Username for user identification",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="password",
+     *                 description="User's choosen password",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="first_name",
+     *                 description="User's first name",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="last_name",
+     *                 description="User's last name",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="email",
+     *                 description="User's email address",
+     *                 type="string"
+     *             )
+     *         )
+     *     )
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_CREATED,
+     *     description="Create a user and returns it"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_BAD_REQUEST,
+     *     description="Bad Json syntax or incorrect data"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_UNAUTHORIZED,
+     *     description="Unauthorized request"
+     * )
+     * @OA\Tag(name="Users")
      */
     public function add(Request $request, EntityManagerInterface $entityManager)
     {
         // if current user can't add a new user
         if (!$this->isGranted("USER_ADD", $this->getUser())) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         try {
@@ -95,7 +185,10 @@ class UserController extends AbstractController
             $user->setPassword($this->hasher->hashPassword($user, $user->getPassword()));
             $user->setCustomer($this->getUser()->getCustomer());
 
-            $this->validateUser($user);
+            $errors = $this->validateUser($user);
+            if ($errors) {
+                return $errors;
+            }
 
             $entityManager->persist($user);
             $entityManager->flush();
@@ -107,14 +200,61 @@ class UserController extends AbstractController
         } catch (Throwable $th) {
             $message = $th->getMessage();
             if ($th instanceof UniqueConstraintViolationException) {
-                $message = "Violation d'une contrainte d'unicité : cet utilisateur existe déjà";
+                $message = "Uniqueness constraint violation: this user already exists";
             }
             throw new JsonException($message, JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_update", methods={"PUT"})
+     * @Route("/api/users/{id<\d+>}", name="api_user_update", methods={"PUT"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_OK,
+     *     description="Update a user and returns it"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_BAD_REQUEST,
+     *     description="Bad Json syntax or incorrect data"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_UNAUTHORIZED,
+     *     description="Unauthorized request"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_NOT_FOUND,
+     *     description="User not found"
+     * )
+     * @OA\RequestBody(
+     *     description="The user data you want to update. Use empty values for unchanged data (e.g. ""password"": """").",
+     *     required=true,
+     *     @OA\MediaType(
+     *         mediaType="application/Json",
+     *         @OA\Schema(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="password",
+     *                 description="User's choosen password",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="first_name",
+     *                 description="User's first name",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="last_name",
+     *                 description="User's last name",
+     *                 type="string"
+     *             ),
+     *             @OA\Property(
+     *                 property="email",
+     *                 description="User's email address",
+     *                 type="string"
+     *             )
+     *         )
+     *     )
+     * )
+     * @OA\Tag(name="Users")
      */
     public function update(User $user = null, Request $request, EntityManagerInterface $entityManager)
     {
@@ -123,7 +263,7 @@ class UserController extends AbstractController
 
         // if current user can't add a new user
         if (!$this->isGranted("USER_EDIT", $user)) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         try {
@@ -134,7 +274,10 @@ class UserController extends AbstractController
             if ($updatedUser->getPassword()) $user->setPassword($this->hasher->hashPassword($user, $updatedUser->getPassword()));
 
             // validate User
-            $this->validateUser($user);
+            $errors = $this->validateUser($user);
+            if ($errors) {
+                return $errors;
+            }
 
             $entityManager->flush();
 
@@ -144,15 +287,25 @@ class UserController extends AbstractController
             return new JsonResponse($data, JsonResponse::HTTP_OK, [], true);
         } catch (Throwable $th) {
             $message = $th->getMessage();
-            if ($th instanceof UniqueConstraintViolationException) {
-                $message = "Violation d'une contrainte d'unicité : cet utilisateur existe déjà";
-            }
             throw new JsonException($message, JsonResponse::HTTP_BAD_REQUEST);
         }
     }
 
     /**
-     * @Route("/api/users/{id}", name="api_user_delete", methods={"DELETE"})
+     * @Route("/api/users/{id<\d+>}", name="api_user_delete", methods={"DELETE"})
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_NO_CONTENT,
+     *     description="Delete a user"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_UNAUTHORIZED,
+     *     description="Unauthorized request"
+     * )
+     * @OA\Response(
+     *     response=JsonResponse::HTTP_NOT_FOUND,
+     *     description="User not found"
+     * )
+     * @OA\Tag(name="Users")
      */
     public function remove(User $user = null, EntityManagerInterface $entityManager)
     {
@@ -161,7 +314,7 @@ class UserController extends AbstractController
 
         // if user can't be deleted by the current user
         if (!$this->isGranted("USER_DELETE", $user)) {
-            throw new JsonException("Vous n'êtes pas autorisé à effectuer cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+            throw new JsonException("You do not have the required rights to make this request", JsonResponse::HTTP_UNAUTHORIZED);
         }
 
         $entityManager->remove($user);
@@ -183,7 +336,7 @@ class UserController extends AbstractController
     {
         // if user is not found
         if (!$user || !($user instanceof User)) {
-            throw new HttpException(JsonResponse::HTTP_NOT_FOUND, "Aucun utilisateur trouvé avec cet identifiant");
+            throw new JsonException("Incorrect identifier or no user found with this identifier", JsonResponse::HTTP_NOT_FOUND);
         }
     }
 
