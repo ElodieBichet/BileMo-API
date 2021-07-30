@@ -44,8 +44,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Assert\NotBlank(message="Le champ username ne peut être vide")
-     * @Assert\Length(min=3, minMessage="Le champ username doit contenir au moins {{ limit }} caractères")
+     * @Assert\NotBlank(message="username property can not be empty")
+     * @Assert\Length(min=3, minMessage="username property must contain at least {{ limit }} characters")
      * @Groups({"user:list", "user:details"})
      */
     private $username;
@@ -63,21 +63,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="Vous devez indiquer un prénom")
+     * @Assert\NotBlank(message="You must provide a first name")
      * @Groups({"user:list", "user:details"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Assert\NotBlank(message="Vous devez indiquer un nom")
+     * @Assert\NotBlank(message="You must provide a last name")
      * @Groups({"user:list", "user:details"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Assert\Email(message="L'email n'est pas une adresse email valide")
+     * @Assert\Email(message="The email you provide is not a valid email address")
      * @Groups({"user:details"})
      */
     private $email;
@@ -85,7 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
-     * @Assert\NotBlank(message="Un utilisateur doit être lié à un client")
+     * @Assert\NotBlank(message="A user has to be related to a customer")
      * @Groups({"user:details"})
      */
     private $customer;
