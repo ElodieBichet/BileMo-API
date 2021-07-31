@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         absolute = true
  *     ),
  *     attributes = {"actions": { "read": "GET" }},
- *     exclusion = @Hateoas\Exclusion(groups = {"product:detail"})
+ *     exclusion = @Hateoas\Exclusion(groups = {"product:details"})
  * )
  */
 class Product
@@ -77,6 +77,10 @@ class Product
      * @Groups("product:list", "product:details")
      */
     private $availableQuantity;
+
+    /**
+     * Getters and setters
+     */
 
     public function getId(): ?int
     {

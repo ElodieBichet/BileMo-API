@@ -13,8 +13,8 @@ B2B API with Symfony 5. Work carried out as part of the training course "Applica
   * [Configure environment variables](#configure-environment-variables)
   * [Install the project](#install-the-project)
   * [Create the database](#create-the-database)
-3.  __[Configuration](#configuration)__
-  * [Customize pagination](#customize-pagination)
+3.  __[Use](#use)__
+  * [Customize default pagination](#customize-default-pagination)
 
 ---
 ## PREREQUISITE AND TECHNOLOGIES
@@ -80,9 +80,9 @@ $ php bin/console doctrine:fixtures:load
 Your database should be updated with products, customers and users.
 
 ---
-## CONFIGURATION
+## USE
 
-### __Customize pagination__
+### __Customize default pagination__
 Users can add parameters in their GET requests to paginate the display of lists. If they don't, default settings are applied.  
 You can modify these default settings in _config/services/pagination.yaml_.
 
@@ -98,4 +98,8 @@ parameters:
     users_orderby: lastName
     users_order: ASC
 ```
- 
+
+### __Access API documentation__
+There are 2 available documentation formats:  
+- Json documentation: /api/doc.json
+- Html interactive documentation: /api/doc

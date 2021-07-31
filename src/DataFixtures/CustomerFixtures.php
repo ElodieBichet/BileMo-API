@@ -28,7 +28,7 @@ class CustomerFixtures extends Fixture
 
             $customer
                 ->setName(ucfirst($faker->words(mt_rand(2, 3), true)))
-                ->setIsAllowed($faker->boolean(80))
+                ->setIsAllowed($faker->boolean(70))
                 ->setSiret($faker->siret());
 
             // About 50% of the customers have an expiration date
