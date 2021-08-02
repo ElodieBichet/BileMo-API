@@ -4,7 +4,9 @@ namespace App\Service;
 
 use Doctrine\ORM\QueryBuilder;
 use JMS\Serializer\SerializerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Cache\Adapter\FilesystemTagAwareAdapter;
 
 class PaginationService
 {
@@ -17,7 +19,7 @@ class PaginationService
         $this->serializer = $serializer;
     }
 
-    public function paginate(Request $request, QueryBuilder $queryBuilder)
+    public function paginate(Request $request, QueryBuilder $queryBuilder, ?int $customerId = null)
     {
         $entityName = $queryBuilder->getRootAliases()[0];
 
@@ -37,18 +39,33 @@ class PaginationService
             $order = ($inverse === "false" or $inverse === "no" or (bool) $inverse === false) ? 'ASC' : 'DESC';
         }
 
-        // Update query builder with options
-        $queryBuilder
-            ->orderBy("$entityName.$orderby", $order);
+        // Cache init
+        $cache = new FilesystemTagAwareAdapter();
+        $cache_key = sprintf("%s_p%s_l%s_ord%s-%s", $entityName, $page, $limit, $orderby, $order);
+        if ($customerId) $cache_key .= "_$customerId";
+        $cached_data = $cache->getItem($cache_key);
 
-        // If there is a limit, paginate results
-        if ((bool) $limit) {
-            $offset = (int) ($page - 1) * $limit;
+        if (!$cached_data->isHit()) {
+            // Update query builder with options
             $queryBuilder
-                ->setMaxResults($limit)
-                ->setFirstResult($offset);
+                ->orderBy("$entityName.$orderby", $order);
+
+            // If there is a limit, paginate results
+            if ((bool) $limit) {
+                $offset = (int) ($page - 1) * $limit;
+                $queryBuilder
+                    ->setMaxResults($limit)
+                    ->setFirstResult($offset);
+            }
+
+            $data = $queryBuilder->getQuery()->getResult();
+
+            // Cache saving
+            $cached_data->set($data);
+            $cached_data->expiresAfter(3600);
+            $cache->save($cached_data);
         }
 
-        return $queryBuilder->getQuery()->getResult();
+        return $cached_data->get();
     }
 }
