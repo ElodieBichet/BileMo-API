@@ -38,8 +38,6 @@ nelmio_api_doc:
                                         properties:
                                             token:
                                                 type: string
-                                            refresh_token:
-                                                type: string
                         '401':
                             description: Invalid credentials
                         '400':
