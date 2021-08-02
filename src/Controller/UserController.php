@@ -82,7 +82,7 @@ class UserController extends AbstractController
         $queryBuilder = $this->userRepository->createQueryBuilder('user')
             ->where("user.customer = " . $customer->getId());
 
-        $data = $this->pagination->paginate($request, $queryBuilder);
+        $data = $this->pagination->paginate($request, $queryBuilder, $customer->getId());
 
         $context = SerializationContext::create()->setGroups(array("user:list"));
         $jsonData = $this->serializer->serialize($data, 'json', $context);
