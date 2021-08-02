@@ -43,6 +43,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users", name="api_user_list", methods={"GET"})
+     * @OA\Get(summary="Get list of your organization's users")
      * @OA\Response(
      *     response=JsonResponse::HTTP_OK,
      *     description="Returns the list of your users"
@@ -91,6 +92,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users/{id<\d+>}", name="api_user_details", methods={"GET"})
+     * @OA\Get(summary="Get details of a user")
      * @OA\Response(
      *     response=JsonResponse::HTTP_OK,
      *     description="Returns a user"
@@ -123,6 +125,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users", name="api_user_add", methods={"POST"})
+     * @OA\Post(summary="Add a new user for your organization")
      * @OA\RequestBody(
      *     description="The new user to create",
      *     required=true,
@@ -208,6 +211,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users/{id<\d+>}", name="api_user_update", methods={"PUT"})
+     * @OA\Put(summary="Update a user")
      * @OA\Response(
      *     response=JsonResponse::HTTP_OK,
      *     description="Update a user and returns it"
@@ -293,6 +297,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/users/{id<\d+>}", name="api_user_delete", methods={"DELETE"})
+     * @OA\Delete(summary="Delete a user")
      * @OA\Response(
      *     response=JsonResponse::HTTP_NO_CONTENT,
      *     description="Delete a user"
