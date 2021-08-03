@@ -72,7 +72,7 @@
         "prepare-database-dev": [
             "php bin/console doctrine:database:drop --if-exists -f",
             "php bin/console doctrine:database:create",
-            "php bin/console doctrine:schema:update -f",
+            "php bin/console doctrine:migrations:migrate",
             "php bin/console doctrine:fixtures:load -n"
         ]
     },
@@ -84,5 +84,9 @@
             "allow-contrib": false,
             "require": "5.3.*"
         }
+    },
+    "require-dev": {
+        "symfony/stopwatch": "^5.3",
+        "symfony/web-profiler-bundle": "^5.3"
     }
 }

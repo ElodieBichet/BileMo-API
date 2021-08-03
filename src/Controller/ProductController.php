@@ -49,7 +49,7 @@ class ProductController extends AbstractController
      * @OA\Parameter(
      *     name="orderby",
      *     in="query",
-     *     description="Name of the property used to sort items: id, name, created_at, description, price, color, available_quantity",
+     *     description="Name of the property used to sort items: id, name, createdAt, description, price, color, availableQuantity",
      *     @OA\Schema(type="string", default = "name")
      * )
      * @OA\Parameter(
