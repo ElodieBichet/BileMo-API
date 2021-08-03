@@ -63,7 +63,7 @@ class UserController extends AbstractController
      * @OA\Parameter(
      *     name="orderby",
      *     in="query",
-     *     description="Name of the property used to sort items: id, username, first_name, last_name, email",
+     *     description="Name of the property used to sort items: id, username, firstName, lastName, email",
      *     @OA\Schema(type="string", default = "lastName")
      * )
      * @OA\Parameter(
