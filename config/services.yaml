@@ -35,6 +35,10 @@ services:
                     limit: '%users_per_page%'
                     orderby: '%users_orderby%'
                     order: '%users_order%'
+            # the '@' symbol is important: that's what tells the container
+            # you want to pass the *service* whose id is 'monolog.logger.request',
+            # and not just the *string* 'monolog.logger.request'
+            $logger: '@monolog.logger.request'
             # $repository: App\Repository\ProductRepository 
 
     App\Listener\ExceptionListener:

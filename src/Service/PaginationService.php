@@ -12,15 +12,18 @@ class PaginationService
 {
     protected $defaults;
     protected $serializer;
+    protected $logger;
 
-    public function __construct(array $defaults, SerializerInterface $serializer)
+    public function __construct(array $defaults, SerializerInterface $serializer, LoggerInterface $logger)
     {
         $this->defaults = $defaults;
         $this->serializer = $serializer;
+        $this->logger = $logger;
     }
 
     public function paginate(Request $request, QueryBuilder $queryBuilder, ?int $customerId = null)
     {
+        $start = microtime(true);
         $entityName = $queryBuilder->getRootAliases()[0];
 
         // get default options defined in services.yaml
@@ -66,6 +69,7 @@ class PaginationService
             $cache->save($cached_data);
         }
 
+        $this->logger->info("duration: " . (microtime(true) - $start));
         return $cached_data->get();
     }
 }
