@@ -32,7 +32,7 @@ See more information on technical requirements in the [Symfony official document
 Framework: __Symfony ^5.3.3__
 Dependencies manager: __Composer ^1.11.99.2__  
 
-Libraries included via Composer (used in fixtures):
+External libraries included via Composer (used in fixtures):
 * FakerPHP/Faker ^1.14 ([more info](https://fakerphp.github.io/))
 
 ---
@@ -56,7 +56,9 @@ DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name?serverVersion=5
 $ cd some\directory
 $ composer install
 ```
-Dependencies should be installed in your project (check _vendor_ directory).
+Dependencies should be installed in your project (check _vendor_ directory).  
+  
+To generate your own SSL keys for LexikJWTAuthentication bundle, see [the bundle documentation](https://github.com/lexik/LexikJWTAuthenticationBundle/blob/2.x/Resources/doc/index.md#generate-the-ssl-keys).  
 
 ### __Create the database__
 If you are in a dev environment, you can create the database and fill it with fake contents with the following command:
@@ -78,6 +80,8 @@ $ php bin/console doctrine:migrations:migrate
 $ php bin/console doctrine:fixtures:load
 ```
 Your database should be updated with products, customers and users.
+
+  ![DB Model](UML/DB-model.png)
 
 ---
 ## USE
